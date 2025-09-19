@@ -139,8 +139,8 @@ function Player.walk( self )
 	
 	if dir and self.meleeTimer == 1 then
 		
-		local x = cos( dir + self.cam.dir ) * self.acceleration * hdt
-		local z = sin( dir + self.cam.dir + math.pi ) * self.acceleration * hdt
+		local x = cos( dir + self.cam.dir ) * self.acceleration * hdt * Controller.screenjoystick.power
+		local z = sin( dir + self.cam.dir + math.pi ) * self.acceleration * hdt * Controller.screenjoystick.power
 		
 		self.velocity.x = self.velocity.x + x
 		self.velocity.z = self.velocity.z + z

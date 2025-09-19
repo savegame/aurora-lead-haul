@@ -8,6 +8,9 @@ local joystick = {
     radius = 60,      -- радиус основания
     deadzone = 8,     -- мёртвая зона
     maxDistance = 48, -- максимальная длина стика от центра
+    dx = 0,
+    dy = 0,       -- позиция стикa (относительная)
+    power = 0,
 
     startJoystick = function(self, id, x, y)
         if self.id ~= nil then
@@ -22,29 +25,49 @@ local joystick = {
         self.stickY = y
     end,
 
-    moveJoystick = function(self, x, y)
+    moveJoystick = function(self, id, x, y)
+        if self.id ~= id then
+            return
+        end
+
         local dx = x - self.baseX
         local dy = y - self.baseY
         local dist = math.sqrt(dx * dx + dy * dy)
         if dist <= self.deadzone then
             self.stickX = self.baseX
             self.stickY = self.baseY
+            dx = 0
+            dy = 0
+            dist = 0
         else
             local maxd = self.maxDistance
             if dist > maxd then
                 dx = dx / dist * maxd
                 dy = dy / dist * maxd
+                dist = 1.0
+            else
+                dist = dist / maxd
             end
             self.stickX = self.baseX + dx
             self.stickY = self.baseY + dy
         end
+        self.dx = dx
+        self.dy = dy
+        self.power = dist
     end,
 
-    stopJoystick = function(self)
+    stopJoystick = function(self, id)
+        if self.id ~= id then
+            return
+        end
+
         self.active = false
         self.id = nil
         self.stickX = self.baseX
         self.stickY = self.baseY
+        self.dx = 0
+        self.dy = 0
+        self.power = 0
     end,
 
     draw = function (self)

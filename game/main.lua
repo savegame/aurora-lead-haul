@@ -37,7 +37,7 @@ function love.load()
 	lg.setCanvas()
 
 	--set fullscreen
-	love.window.setFullscreen( true )
+	-- love.window.setFullscreen( true )
 end
 
 function love.update(dt)
@@ -50,8 +50,8 @@ end
 
 function love.draw(dt)
 	fileHandler:drawScripts()
-	
+
 	-- temp dev stuff
-	lg.setColor( 1,0,1 )
-	lg.print( "FPS: "..love.timer.getFPS()..", X: "..floor(Player.x)..", Z: "..floor(Player.z), 10,10 )
+	-- lg.setColor( 1,0,1 )
+	-- lg.print( "FPS: "..love.timer.getFPS()..", X: "..floor(Player.x)..", Z: "..floor(Player.z), 10,10 )
 end

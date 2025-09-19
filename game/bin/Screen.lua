@@ -4,11 +4,11 @@ Screen = { }
 
 function Screen:new( )
 	local inst = Class:init( Screen )
-	-- local w, h = love.graphics.getDimensions()
+	local w, h = love.graphics.getDimensions()
 	-- local aspect = w / h
 	
-	inst.baseWidth = 640
-	inst.baseHeight = 360
+	inst.baseWidth = w --640
+	inst.baseHeight = h --360
 	
 	inst.width = inst.baseWidth
 	inst.height = inst.baseHeight

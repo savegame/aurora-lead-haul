@@ -42,6 +42,90 @@ function Controller:new()
         print("Found joystick: " .. inst.joystick:getName())
     end
 
+    inst.screenjoystick = require "joystick"
+    inst.button = require "buttons"
+
+    local screenW, screenH = love.graphics.getDimensions()
+    local bw = 80
+    local bh = 80
+    -- local margin = 10
+
+    inst.screenButtons = {
+        button_fire = inst.button:createButton(inst.button, {
+            x = screenW - bw - 100,
+            y = screenH - bh - 140,
+            w = bw, h = bh,
+            label = "FIRE",
+            onPress = function(b) 
+                inst.joystickButtonState.righttrigger = true
+            end,
+            onRelease = function(b) 
+                inst.joystickButtonState.righttrigger = false
+            end,
+        }),
+        button_interact = inst.button:createButton(inst.button, {
+            x = screenW - 60 - 16,
+            y = screenH - 60 - 200,
+            w = 60, h = 60,
+            label = "E",
+            onPress = function(b) 
+                inst.joystickButtonState.buttonY = true
+            end,
+            onRelease = function(b) 
+                inst.joystickButtonState.buttonY = false
+            end,
+        }),
+        button_knife = inst.button:createButton(inst.button, {
+            x = screenW - 60 - 16,
+            y = screenH - 60 - 124,
+            w = 60, h = 60,
+            label = "Q",
+            onPress = function(b) 
+                inst.joystickButtonState.buttonX = true
+            end,
+            onRelease = function(b) 
+                inst.joystickButtonState.buttonX = false
+            end,
+        }),
+        button_pw = inst.button:createButton(inst.button, {
+            x = screenW * 0.5 - 80 - 8,
+            y = screenH - 66,
+            w = 80, h = 40,
+            label = "PREV",
+            onPress = function(b)
+                table.insert(presses, {key = "wheelUp", id = "wheel"})
+            end,
+            onRelease = function(b)
+            end,
+            rectangle = true
+        }),
+        button_nw = inst.button:createButton(inst.button, {
+            x = screenW * 0.5 + 8,
+            y = screenH - 66,
+            w = 80, h = 40,
+            label = "NEXT",
+            onPress = function(b)
+                table.insert(presses, {key = "wheelDown", id = "wheel"})
+            end,
+            onRelease = function(b)
+            end,
+            rectangle = true
+        }),
+        button_pause = inst.button:createButton(inst.button, {
+            x = 16,
+            y = 16,
+            w = 80, h = 40,
+            label = "MENU",
+            onPress = function(b)
+                table.insert(presses, {key = "escape", id = "keyboard"})
+            end,
+            onRelease = function(b)
+                table.insert(releases, {key = "escape"})
+            end,
+            rectangle = true
+        }),
+    }
+
     inst.joystickButtonState = {
         righttrigger = false,
         buttonA = false,
@@ -80,7 +164,7 @@ function Controller.setMousePos(self)
     if self.joystick == nil then
         return
     end
-    -- local x = 
+    
     self.mouse.dx = self.joystick:getGamepadAxis("rightx") * 1.5
     self.mouse.dy = self.joystick:getGamepadAxis("righty") * 1.5
 
@@ -114,6 +198,11 @@ function Controller.getMoveDir(self)
         dx = self.joystick:getGamepadAxis("leftx")
         dz = self.joystick:getGamepadAxis("lefty")
     end
+    if self.screenjoystick then
+        -- print(("Screen joystick: %.2f x %.2f"):format(self.screenjoystick.stickX, self.screenjoystick.stickY))
+        dx = self.screenjoystick.dx
+        dz = self.screenjoystick.dy
+    end
 
     if dx ~= 0 or dz ~= 0 then
         returnDir = math.atan2(dz, dx)
@@ -135,6 +224,9 @@ function Controller.isInteracting(self)
 end
 
 function Controller.isFiring(self)
+    if self.screenjoystick and Game.state == "playing" then
+        return self.joystickButtonState.righttrigger or self.screenButtons.button_fire.pressed
+    end
     return Input:isDown(self.binds.fire) or self.joystickButtonState.righttrigger
 end
 
@@ -208,6 +300,9 @@ function Controller.getSwappedWeapon(self, index)
 end
 
 function love.mousemoved(x, y, dx, dy)
+    if Game.state == "playing" then
+        return
+    end
     Controller.mouse.x = x
     Controller.mouse.y = y
     Controller.mouse.dx = dx
@@ -228,6 +323,39 @@ function love.joystickremoved(joystick)
         print("Joystick removed: " .. joystick:getName())
     end
 end
+
+function love.touchpressed(id ,x ,y ,dx ,dy ,pressure)
+    if Game.state == "playing" then
+        if not Controller.button:touchpressed(id, x, y, pressure) 
+           and Controller.screenjoystick 
+           and x < love.graphics.getWidth() * 0.5
+        then
+            Controller.screenjoystick:startJoystick(id, x, y)
+        end
+    end
+end
+
+function love.touchmoved(id, x, y, dx, dy, pressure)
+    if Controller.screenjoystick and Controller.screenjoystick.id == id then 
+        Controller.screenjoystick:moveJoystick(id, x, y)
+    elseif x >= love.graphics.getWidth() * 0.5 and Game.state == "playing" then
+        Controller.mouse.x = x
+        Controller.mouse.y = y
+        Controller.mouse.dx = dx
+        Controller.mouse.dy = dy
+        Controller.mouse.moved = true
+
+        Controller.button:touchmoved(id, x, y, dx, dy, pressure)
+    end
+end
+
+function love.touchreleased(id, x, y, dx, dy, pressure)
+    if Controller.screenjoystick then 
+        Controller.screenjoystick:stopJoystick(id)
+    end
+    Controller.button:touchreleased(id, x, y, pressure)
+end
+
 function file:init()
     Controller = Controller:new()
 end
@@ -237,6 +365,12 @@ function file:update()
 end
 
 function file:draw()
+    if Controller.screenjoystick then 
+        Controller.screenjoystick:draw() 
+    end
+    if Game.state == "playing" then
+        Controller.button:draw()
+    end
 end
 
 -- [[ RETURN ]] --

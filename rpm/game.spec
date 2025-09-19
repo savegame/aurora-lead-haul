@@ -1,9 +1,9 @@
 %define _app_orgname ru.sashikknox
-%define _app_appname AwesomeGame
-%define _app_launcher_name Офигенная игра
+%define _app_appname leadhaul
+%define _app_launcher_name LEAD HAUL
 
 Name:       %{_app_orgname}.%{_app_appname}
-Summary:    Love2D Game Example for AuroraOS
+Summary:    Lead Haul is a short old-school first person shooter
 Release:    1
 Version:    1.0.0
 Group:      Amusements/Games
@@ -37,7 +37,9 @@ BuildRequires: ninja
 BuildRequires: lua
 
 %description
-"Game example for AuroraOS made with LÖVE engine"
+Lead Haul is a short old-school first person shooter 
+with an emphasis on powerful weapons and a sprinkling 
+of secret hunting.
 
 %prep
 %setup -q -n %{name}-%{version}
