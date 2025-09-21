@@ -139,8 +139,8 @@ function Player.walk( self )
 	
 	if dir and self.meleeTimer == 1 then
 		
-		local x = cos( dir + self.cam.dir ) * self.acceleration * hdt * Controller.screenjoystick.power
-		local z = sin( dir + self.cam.dir + math.pi ) * self.acceleration * hdt * Controller.screenjoystick.power
+		local x = cos( dir + self.cam.dir ) * self.acceleration * hdt
+		local z = sin( dir + self.cam.dir + math.pi ) * self.acceleration * hdt
 		
 		self.velocity.x = self.velocity.x + x
 		self.velocity.z = self.velocity.z + z
@@ -148,23 +148,15 @@ function Player.walk( self )
 	end
 	
 	local speed = min( self.maxSpeed, max( 0, math.dist( self.velocity.x,self.velocity.z, 0,0 ) - self.friction * hdt ) )
-	local dir = math.angle( 0,0, self.velocity.x,self.velocity.z )
+	local dir = math.angle( 0,0, self.velocity.x, self.velocity.z )
 	
-	-- if Controller.joystick then
-	-- 	local x = Controller.joystick:getGamepadAxis("leftx")
-	-- 	local z = Controller.joystick:getGamepadAxis("lefty")
-		
-	-- 	self.velocity.x = self.velocity.x + x
-	-- 	self.velocity.z = self.velocity.z + z
-	-- else
-		self.velocity.x = cos( dir ) * speed
-		self.velocity.z = sin( dir ) * speed
-	-- end
+	self.velocity.x = cos( dir ) * speed
+	self.velocity.z = sin( dir ) * speed
 
 	self:move(
-	self.velocity.x * hdt,
+	self.velocity.x * hdt * Controller.screenjoystick.power,
 	0,
-	self.velocity.z * hdt
+	self.velocity.z * hdt * Controller.screenjoystick.power
 	)
 	
 	self.collisionBox:setPos( self.x,self.y,self.z )

@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=__LAUNCHER_NAME__
-Comment=LEAD HAUL
+Comment=Lead Haul is a short old-school first person shooter with an emphasis on powerful weapons and a sprinkling of secret hunting.
 MimeType=application/x-love-game;
 Type=Application
 Categories=Game;
@@ -13,6 +13,9 @@ Permissions=Internet;Audio
 OrganizationName=__ORGNAME__
 ApplicationName=__APPNAME__
 
+[X-Aurora-SplashScreen]
+GradientStartColor=#F06923
+GradientEndColor=#D72D2D
 
 [X-Aurora-Application]
-Orientation=LandscapeInverted
+Orientation=LandscapeInverted;Landscape
